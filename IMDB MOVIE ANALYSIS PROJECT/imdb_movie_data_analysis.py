@@ -4,17 +4,13 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Load the dataset from the correct path
 df = pd.read_csv("C:/Users/91743/Downloads/IMDB.csv")
 
-# Drop unwanted columns
 df_cleaned = df.drop(columns=[col for col in df.columns if "Unnamed" in col or col == "Rank"])
 
-# Fill missing values (optional)
 df_cleaned['Revenue (Millions)'] = df_cleaned['Revenue (Millions)'].replace({np.nan: None})
 df_cleaned['Metascore'] = df_cleaned['Metascore'].replace({np.nan: None})
 
-# Connect to MySQL with error handling
 try:
     conn = mysql.connector.connect(
         host="localhost",
@@ -24,10 +20,8 @@ try:
     )
     cursor = conn.cursor()
 
-    # CRUD Operations - Read and Display the Movie Details
     cursor.execute("SELECT * FROM imdb_movies LIMIT 5000")  # You can adjust the number of records
 
-    # Loop through and print each record in the desired format
     for row in cursor.fetchall():
         print("="*50)
         print(f"id: {row[0]}")
@@ -44,9 +38,6 @@ try:
         print(f"metascore: {row[11]}")
         print("="*50)
 
-    # Example of multiple plots
-
-    # 1. Average Rating by Genre
     plt.figure(figsize=(12, 6))
     avg_rating_by_genre = df_cleaned.groupby('Genre')['Rating'].mean()
     sns.barplot(x=avg_rating_by_genre.index, y=avg_rating_by_genre.values, palette="viridis")
@@ -56,7 +47,6 @@ try:
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    # 2. Boxplot of Ratings by Genre
     plt.figure(figsize=(12, 6))
     sns.boxplot(data=df_cleaned, x="Genre", y="Rating", palette="Set2")
     plt.title("Boxplot of Ratings by Genre")
@@ -65,7 +55,6 @@ try:
     plt.xticks(rotation=45)
     plt.tight_layout()
 
-    # 3. Rating Distribution Histogram
     plt.figure(figsize=(12, 6))
     sns.histplot(df_cleaned['Rating'], bins=20, kde=True, color='blue')
     plt.title("Rating Distribution")
@@ -73,7 +62,6 @@ try:
     plt.ylabel("Frequency")
     plt.tight_layout()
 
-    # 4. Revenue vs Metascore
     plt.figure(figsize=(12, 6))
     sns.scatterplot(x=df_cleaned['Revenue (Millions)'], y=df_cleaned['Metascore'], color='green')
     plt.title("Revenue vs Metascore")
@@ -81,7 +69,6 @@ try:
     plt.ylabel("Metascore")
     plt.tight_layout()
 
-    # Show all the graphs at once
     plt.show()
 
 except mysql.connector.Error as err:
